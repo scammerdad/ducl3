@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en-us" style="height:100%">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>504 Games | Duck Life</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+      body { background: #231F20; margin: 0; height: 100%; overflow: hidden; }
+      #gameContainer { width: 100%; height: 100%; }
+
+      /* Styling the injected verbose text to match Torus/Magero */
+      #custom-verbose-text {
+        color: white;
+        font-family: 'Torus', sans-serif;
+        font-size: 14px;
+        text-align: center;
+        margin-top: 15px; /* Space below the native progress bar */
+        width: 100%;
+        position: absolute;
+        bottom: -40px; /* Position it below the Unity bar */
+      }
+
+      /* Ensuring the Unity logo and bar stay centered */
+      .template-dark .logo { margin-bottom: 20px; }
+    </style>
+    
+    <script>
+      // 1. SET YOUR BUILD SIZE HERE (in MB)
+      const totalSizeMB = 50.00; 
+
+      function handleProgress(gameInstance, progress) {
+        if (!gameInstance.Module) return;
+        
+        // Find or create the verbose text element inside Unity's progress area
+        let verboseText = document.getElementById("custom-verbose-text");
+        if (!verboseText) {
+          const progressArea = document.querySelector(".progress");
+          if (progressArea) {
+            verboseText = document.createElement("div");
+            verboseText.id = "custom-verbose-text";
+            progressArea.appendChild(verboseText);
+          }
+        }
+
+        // Update the text if the element exists
+        if (verboseText) {
+          const currentMB = (totalSizeMB * progress).toFixed(2);
+          const status = progress < 1 ? "Downloading" : "Preparing";
+          verboseText.innerHTML = `${status}: ${currentMB}MB / ${totalSizeMB.toFixed(2)}MB`;
+        }
+      }
+
+      // 2. Instantiate with the native 'dark' theme and our progress hook
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL3Wix.json", {
+        onProgress: handleProgress,
+        compatibilityCheck: null // Optional: avoids some legacy alerts
+      });
+    </script>
+  </head>
+  <body class="template-dark">
+    <div id="gameContainer"></div>
+  </body>
+</html>

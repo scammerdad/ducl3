@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en-us" style="height:100%">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>504 Games | Duck Life</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+        /* 1. Fonts */
+        @font-face {
+            font-family: 'TorusB';
+            src: url('torus-bold-webfont.woff2') format('woff2');
+            font-weight: 700;
+        }
+        
+        @font-face {
+            font-family: 'Torus';
+            src: url('torus-regular-webfont.woff2') format('woff2');
+            font-weight: 400;
+        }
+
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background: #231F20; 
+        }
+        
+        /* 2. Fullscreen Background Loader */
+        #custom-loader {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center;
+            background-image: url('w.jpg'); 
+            background-size: cover;
+            background-position: center;
+            z-index: 99;
+        }
+
+        /* 3. Centered Loading Box */
+        #loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(35, 31, 32, 0.85);
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            min-width: 400px;
+        }
+
+        #loader-status { 
+            font-family: 'TorusB', sans-serif;
+            font-size: 18px; 
+            color: #ffffff; 
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* 4. Green Progress Bar Styling */
+        #progress-wrap { 
+            width: 350px; 
+            height: 14px; 
+            background: #001c00; 
+            border-radius: 7px; 
+            overflow: hidden; 
+            border: 1px solid #007300;
+        }
+
+        #progress-fill { 
+            width: 0%; 
+            height: 100%; 
+            background: #00ff00; 
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transition: width 0.2s ease-out; 
+        }
+
+        #loader-mb { 
+            font-family: 'Torus', sans-serif;
+            font-size: 15px; 
+            color: #cccccc;
+            margin-top: 15px; 
+        }
+
+        #gameContainer { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="custom-loader">
+        <div id="loader-content">
+            <!-- Logo (Auto-hides if missing) -->
+            <img src="logo.png" style="max-width: 250px; margin-bottom: 25px;" onerror="this.style.display='none'">
+            
+            <div id="loader-status">Initializing...</div>
+            <div id="progress-wrap">
+                <div id="progress-fill"></div>
+            </div>
+            <div id="loader-mb">0.00MB / 0.00MB</div>
+        </div>
+    </div>
+
+    <!-- Unity Container -->
+    <div id="gameContainer"></div>
+
+    <script>
+        /** 
+         * CONFIGURATION: Enter your exact file sizes in BYTES here.
+         * You can find these by right-clicking the file > Properties > Size.
+         **/
+        const fileManifest = {
+            "UnityLoader.js": 151242, 
+            "WebGL3Wix.json": 447,
+            "WebGL3Wix.data.unityweb": 16795002,
+            "WebGL3Wix.asm.framework.unityweb": 90455,
+            "WebGL3Wix.asm.code.unityweb": 4700911,
+            "WebGL3Wix.asm.memory.unityweb": 354639
+        };
+
+        // Calculation Helpers
+        const toMB = (bytes) => (bytes / (1024 * 1024)).toFixed(2);
+        const totalBytes = Object.values(fileManifest).reduce((a, b) => a + b, 0);
+        const totalSizeMB = toMB(totalBytes);
+
+        function handleProgress(gameInstance, progress) {
+            const fill = document.getElementById("progress-fill");
+            const mbText = document.getElementById("loader-mb");
+            const statusText = document.getElementById("loader-status");
+            
+            const currentBytes = totalBytes * progress;
+            const currentMB = toMB(currentBytes);
+            const percent = (progress * 100).toFixed(0);
+
+            // Determine which specific file is likely downloading
+            let currentFileName = "Game Files";
+            let cumulativeWeight = 0;
+            for (const [name, size] of Object.entries(fileManifest)) {
+                cumulativeWeight += (size / totalBytes);
+                if (progress <= cumulativeWeight) {
+                    currentFileName = name;
+                    break;
+                }
+            }
+
+            // Update UI Elements
+            if (fill) fill.style.width = percent + "%";
+            if (mbText) mbText.innerHTML = `${currentMB}MB / ${totalSizeMB}MB (${percent}%)`;
+            
+            if (progress < 1) {
+                statusText.innerHTML = `Downloading ${currentFileName}...`;
+            } else {
+                statusText.innerHTML = "Preparing Game...";
+                // Fade out transition
+                setTimeout(() => { 
+                    const loader = document.getElementById("custom-loader");
+                    loader.style.transition = "opacity 0.6s ease";
+                    loader.style.opacity = "0";
+                    setTimeout(() => { loader.style.display = "none"; }, 600);
+                }, 1200);
+            }
+        }
+
+        // Initialize Unity
+        var gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL3Wix.json", {
+            onProgress: handleProgress
+        });
+    </script>
+</body>
+</html>

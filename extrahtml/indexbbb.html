@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en-us" style="height:100%">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>504 Games | Duck Life</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+      /* 1. Fonts */
+      @font-face {
+        font-family: 'TorusB';
+        src: url('torus-bold-webfont.woff2') format('woff2');
+        font-weight: 700;
+		font-style: bold;
+      }
+	  
+      @font-face {
+        font-family: 'Torus';
+        src: url('torus-regular-webfont.woff2') format('woff2');
+        font-weight: normal;
+		font-style: normal;
+      }
+
+      body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #231F20; }
+      
+      /* 2. The Background Image Loader */
+      #custom-loader {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; 
+        flex-direction: column;
+        justify-content: center; 
+        align-items: center;
+        background-image: url('w.jpg'); /* Your background image */
+        background-size: cover;
+        background-position: center;
+        z-index: 99;
+      }
+
+      /* 3. Loading Content Styling */
+      #loader-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(35, 31, 32, 0.85); /* Semi-transparent dark box for readability */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      }
+
+      #loader-status { 
+        font-family: 'TorusB', sans-serif;
+        font-size: 18px; 
+        color: #fff; 
+        margin-bottom: 10px; 
+      }
+
+      #progress-wrap { 
+        width: 300px; 
+        height: 12px; 
+        background: #001c00; 
+        border-radius: 7px; 
+        overflow: hidden; 
+        border: 1px solid #007300;
+      }
+
+      #progress-fill { 
+        width: 0%; 
+        height: 100%; 
+        background: #00ff00; 
+        box-shadow: 0 0 10px #fff;
+        transition: width 0.2s; 
+      }
+
+      #loader-mb { 
+        font-family: 'Torus', sans-serif;
+        font-size: 16px; 
+        color: white;
+        margin-top: 15px; 
+      }
+
+      #gameContainer { width: 100%; height: 100%; }
+    </style>
+    
+    <script>
+      // CONFIGURATION: Set your actual .unityweb/.data file size in MB here
+      const totalSizeMB = 50.00; 
+
+      function handleProgress(gameInstance, progress) {
+        const fill = document.getElementById("progress-fill");
+        const mbText = document.getElementById("loader-mb");
+        const statusText = document.getElementById("loader-status");
+        
+        const percent = (progress * 100).toFixed(0);
+        const currentMB = (totalSizeMB * progress).toFixed(2);
+        
+        if (fill) fill.style.width = percent + "%";
+        if (mbText) mbText.innerHTML = `${currentMB}MB / ${totalSizeMB.toFixed(2)}MB`;
+        
+        if (progress < 1) {
+          statusText.innerHTML = "Downloading...";
+        } else {
+          statusText.innerHTML = "Preparing Game...";
+          // Fade out and remove loader when finished
+          setTimeout(() => { 
+            const loader = document.getElementById("custom-loader");
+            loader.style.transition = "opacity 0.5s";
+            loader.style.opacity = "0";
+            setTimeout(() => { loader.style.display = "none"; }, 500);
+          }, 1000);
+        }
+      }
+
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL3Wix.json", {
+        onProgress: handleProgress
+      });
+    </script>
+  </head>
+  <body>
+    <!-- Custom Loading Overlay with Background -->
+    <div id="custom-loader">
+      <div id="loader-content">
+        <!-- Optional Logo -->
+        <img src="logo.png" style="max-width: 200px; margin-bottom: 20px;" onerror="this.style.display='none'">
+        
+        <div id="loader-status">Initializing...</div>
+        <div id="progress-wrap"><div id="progress-fill"></div></div>
+        <div id="loader-mb">0.00MB / 0.00MB</div>
+      </div>
+    </div>
+
+    <div id="gameContainer"></div>
+  </body>
+</html>

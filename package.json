@@ -1,0 +1,21 @@
+{
+  "name": "ducl3",
+  "version": "1.0.0",
+  "description": "Duck Life 3 unity",
+  "main": "index.html",
+  "unpkg": "index.html",
+  "files": [
+    "Build/",
+    "*.png",
+	"*.jpg",
+	"*.woff2",
+    "index.html",
+    "favicon.ico"
+  ],
+  "keywords": [
+    "unity",
+    "webgl",
+    "game"
+  ],
+  "license": "ISC"
+}

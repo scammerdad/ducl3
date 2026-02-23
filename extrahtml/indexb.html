@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-us" style="height:100%">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>504 Games | Duck Life</title>
+    <script src="Build/UnityLoader.js"></script>
+    <style>
+      body { background: #231F20; margin: 0; height: 100%; overflow: hidden; }
+      #gameContainer { width: 100%; height: 100%; }
+      
+      /* Loading Overlay Styles */
+      #custom-loader {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        background: #231F20;
+        z-index: 99;
+        font-family: 'Torus', sans-serif;
+        color: white;
+      }
+      #loader-status { font-size: 14px; color: #aaa; margin-bottom: 10px; text-transform: uppercase; }
+      #loader-mb { font-size: 16px; font-weight: bold; margin-top: 10px; }
+      
+      /* Simple Progress Bar */
+      #progress-wrap { width: 250px; height: 10px; background: #444; border-radius: 5px; overflow: hidden; }
+      #progress-fill { width: 0%; height: 100%; background: #fff; transition: width 0.2s; }
+    </style>
+    
+    <script>
+      // CONFIGURATION: Set your actual .unityweb file size in MB here
+      const totalSizeMB = 50.00; 
+
+      function handleProgress(gameInstance, progress) {
+        const fill = document.getElementById("progress-fill");
+        const mbText = document.getElementById("loader-mb");
+        const statusText = document.getElementById("loader-status");
+        
+        // Calculate progress
+        const percent = (progress * 100).toFixed(0);
+        const currentMB = (totalSizeMB * progress).toFixed(2);
+        
+        // Update UI
+        if (fill) fill.style.width = percent + "%";
+        if (mbText) mbText.innerHTML = `Downloading ${currentMB}MB / ${totalSizeMB.toFixed(2)}MB`;
+        
+        if (progress < 1) {
+          statusText.innerHTML = "Downloading Assets...";
+        } else {
+          statusText.innerHTML = "Preparing Game...";
+          // Hide loader after a short delay once fully ready
+          setTimeout(() => { document.getElementById("custom-loader").style.display = "none"; }, 500);
+        }
+      }
+
+      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/WebGL3Wix.json", {
+        onProgress: handleProgress
+      });
+    </script>
+  </head>
+  <body>
+    <!-- Custom Loading Overlay -->
+    <div id="custom-loader">
+      <div id="loader-status">Initializing...</div>
+      <div id="progress-wrap"><div id="progress-fill"></div></div>
+      <div id="loader-mb">0.00MB / 0.00MB</div>
+    </div>
+
+    <div id="gameContainer"></div>
+  </body>
+</html>
